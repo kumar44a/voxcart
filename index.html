@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Voice Assistant</title>
+  <title>VoxCart — AI E-Commerce Voice Assistant</title>
   <style>
     /* ── Design tokens ────────────────────────────────────────────── */
     :root {
@@ -15,10 +15,11 @@
       --cyan:        #06b6d4;
       --green:       #10b981;
       --red:         #ef4444;
+      --orange:      #f97316;
       --txt:         #f1f5f9;
       --txt2:        #94a3b8;
       --bot-bubble:  rgba(139,92,246,0.14);
-      --user-bubble: rgba(59,130,246,0.14);
+      --user-bubble: rgba(249,115,22,0.12);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -65,10 +66,10 @@
     .logo-chip {
       width: 34px; height: 34px;
       border-radius: 9px;
-      background: linear-gradient(135deg, var(--blue), var(--purple));
+      background: linear-gradient(135deg, var(--orange), var(--purple));
       display: grid; place-items: center;
       font-size: 17px;
-      box-shadow: 0 0 16px rgba(139,92,246,0.4);
+      box-shadow: 0 0 16px rgba(249,115,22,0.45);
     }
 
     .status-pill {
@@ -373,12 +374,12 @@
     .btn:disabled { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
 
     .btn-join {
-      background: linear-gradient(135deg, var(--blue), var(--purple));
+      background: linear-gradient(135deg, var(--orange), var(--purple));
       color: #fff;
-      box-shadow: 0 2px 12px rgba(59,130,246,0.25);
+      box-shadow: 0 2px 12px rgba(249,115,22,0.3);
     }
 
-    .btn-join:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+    .btn-join:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(249,115,22,0.5); }
 
     .btn-leave {
       background: rgba(239,68,68,0.12);
@@ -424,8 +425,9 @@
   <!-- ── Header ──────────────────────────────────────────────────── -->
   <header class="header">
     <div class="logo-row">
-      <div class="logo-chip">🤖</div>
-      AI Voice Assistant
+      <div class="logo-chip">🛒</div>
+      VoxCart
+      <span style="font-size:11px;font-weight:400;color:var(--txt2);margin-left:4px;">AI E-Commerce Assistant</span>
     </div>
     <div class="status-pill" id="statusPill">
       <div class="status-dot"></div>
@@ -443,7 +445,7 @@
         <div class="ring ring-2"></div>
         <div class="ring ring-3"></div>
         <div class="avatar-img-wrap">
-          <img src="assets/AssistantVoice.gif" alt="AI Assistant">
+          <img src="assets/AssistantVoice.gif" alt="VoxCart AI">
         </div>
       </div>
 
@@ -459,11 +461,11 @@
 
     <!-- Right: Transcript -->
     <div class="transcript-panel">
-      <div class="t-header">💬 &nbsp;Conversation</div>
+      <div class="t-header">� &nbsp;VoxCart Conversation</div>
       <div class="t-messages" id="tMessages">
         <div class="empty-state" id="emptyState">
-          <div class="empty-state-icon">🎙️</div>
-          <div>Press <strong>Join</strong> to start talking</div>
+          <div class="empty-state-icon">🛒</div>
+          <div>Press <strong>Join</strong> to ask about orders, products, or returns</div>
         </div>
       </div>
     </div>
