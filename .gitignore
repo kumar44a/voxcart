@@ -1,0 +1,13 @@
+.env
+.pids
+venv/
+__pycache__/
+*.pyc
+logs/
+node_modules/
+.DS_Store
+.playwright-mcp/
+.continue/
+KMS/
+*.log
+
