@@ -1,0 +1,123 @@
+VoxCart — Frequently Asked Questions
+=====================================
+Format: each entry is Q: / A: pair, separated by ---
+
+---
+Q: What is VoxCart?
+A: VoxCart is an online e-commerce platform that sells Electronics, Clothing, Home and Kitchen appliances, Books, and Sports equipment. We deliver across India and focus on fast, reliable shipping with easy returns.
+
+---
+Q: What are VoxCart's customer support hours?
+A: Our customer support team is available Monday to Saturday, 9 AM to 9 PM. You can call us at 1800-572-5678 (toll-free), email support@voxcart.in, or use the 24/7 live chat on voxcart.in.
+
+---
+Q: How do I track my order?
+A: You can track your order by going to My Orders on the VoxCart app or website. You will also receive an SMS and email with the tracking link once your order is shipped. You can ask me your order ID and I can check the status for you right away.
+
+---
+Q: How long does standard delivery take?
+A: Standard delivery takes 3 to 7 business days depending on your location. Metro cities like Mumbai, Delhi, Bengaluru, Chennai, and Hyderabad typically receive orders within 2 to 4 business days. Remote locations may take up to 7 business days.
+
+---
+Q: Is express or same-day delivery available?
+A: Express delivery (1 to 2 business days) is available in select metro cities for eligible products. Same-day delivery is currently available in Bengaluru, Mumbai, and Delhi for orders placed before 12 noon. Look for the Express badge on the product page.
+
+---
+Q: Which courier partners does VoxCart use?
+A: VoxCart ships through Delhivery, Blue Dart, Ekart, and Xpressbees. The courier partner is assigned based on your pin code and product type. Blue Dart is used for high-value Electronics orders.
+
+---
+Q: Is Cash on Delivery available?
+A: Yes, Cash on Delivery is available on orders up to rupees 50,000. COD is available across 19,000+ pin codes in India. A convenience fee of rupees 40 is charged for COD orders. Note that COD is not available for orders containing certain high-value Electronics.
+
+---
+Q: What payment methods does VoxCart accept?
+A: VoxCart accepts UPI (GPay, PhonePe, Paytm), Credit Cards (Visa, Mastercard, Amex, RuPay), Debit Cards, Net Banking, EMI (No-Cost EMI available on orders above rupees 3,000), VoxCart Wallet, and Cash on Delivery.
+
+---
+Q: Is No-Cost EMI available?
+A: Yes, No-Cost EMI is available on orders above rupees 3,000 with HDFC, ICICI, SBI, Axis, and Kotak credit cards. EMI tenures available are 3, 6, 9, and 12 months. The EMI option appears at checkout if your cart is eligible.
+
+---
+Q: How does VoxCart Wallet work?
+A: The VoxCart Wallet is a prepaid wallet linked to your account. You can add money using any payment method. Wallet balance is refunded instantly for cancelled or returned orders. Wallet payments are processed immediately with no transaction fee.
+
+---
+Q: What is VoxCart's general return policy?
+A: VoxCart offers a 30-day return window for most items from the date of delivery. Electronics have a shorter 15-day return window. Items must be in original, unused condition with all original packaging, tags, and accessories intact.
+
+---
+Q: How do I initiate a return?
+A: To start a return: go to My Orders on the VoxCart app or website, select the item, click Return or Exchange, choose your reason, and confirm your pickup address. Our courier partner will collect the item from your doorstep within 2 business days. Refunds are processed within 5 to 7 business days after pickup.
+
+---
+Q: Can I return Electronics?
+A: Yes, Electronics can be returned within 15 days of delivery. The item must include all original accessories, manuals, and the original box. The product must be in its original condition with no physical damage. Activated SIM cards or registered devices may not be eligible.
+
+---
+Q: Can I return Clothing or Shoes?
+A: Clothing and footwear can be returned within 30 days of delivery. Items must be unworn with original tags still attached. Washed or altered items cannot be returned. Innerwear and swimwear cannot be returned once opened due to hygiene reasons.
+
+---
+Q: Can I return Books?
+A: Books can be returned within 10 days of delivery. No highlighting, torn pages, or writing is allowed. Sealed books must remain sealed. Digital books and e-books cannot be returned.
+
+---
+Q: What items cannot be returned?
+A: The following items cannot be returned: digital downloads and software, perishable goods, personalized or custom-made items, hygiene products once opened such as innerwear and swimwear, and hazardous materials. Items showing signs of use, physical damage, or tampering are also not eligible.
+
+---
+Q: When will I get my refund?
+A: Refund timelines depend on your payment method. VoxCart Wallet refunds are credited in 2 to 3 business days. UPI, Net Banking, Credit Card, and Debit Card refunds take 5 to 7 business days. Cash on Delivery refunds are transferred to your bank account in 5 to 7 business days. EMI cancellations are processed within 7 to 10 business days.
+
+---
+Q: I received a damaged or wrong item. What should I do?
+A: If you received a damaged, defective, or wrong item, raise a complaint within 48 hours of delivery. Go to My Orders, select the item, and click Report a Problem. Attach photos of the item. We will arrange a free replacement or a full refund at no cost to you, regardless of the return window.
+
+---
+Q: Can I exchange a product?
+A: Exchanges are available within 7 days of delivery for size or colour issues on Clothing and Sports items. Electronics can only be exchanged for the same model if the item is defective on arrival. To request an exchange, go to My Orders and select Exchange.
+
+---
+Q: How do I cancel an order?
+A: You can cancel an order before it is shipped by going to My Orders and clicking Cancel Order. Once an order is shipped, it cannot be cancelled — you will need to wait for delivery and then raise a return request. Cancellation refunds are processed within 2 to 3 business days for Wallet payments and 5 to 7 business days for other methods.
+
+---
+Q: What happens if I miss my delivery?
+A: If you miss a delivery, our courier partner will attempt delivery two more times on the following business days. After three failed attempts, the order is returned to our warehouse and a refund is processed automatically within 5 to 7 business days.
+
+---
+Q: Does VoxCart ship to all pin codes in India?
+A: VoxCart delivers to over 27,000 pin codes across India. You can check if delivery is available at your pin code on the product page before placing an order. Some remote areas may only have Standard delivery available, not Express.
+
+---
+Q: Are there any shipping charges?
+A: Shipping is free on all orders above rupees 499. For orders below rupees 499, a delivery fee of rupees 49 is charged. Express delivery carries an additional charge of rupees 99. COD orders have a convenience fee of rupees 40.
+
+---
+Q: How do I create a VoxCart account?
+A: You can create an account at voxcart.in by clicking Sign Up and entering your mobile number or email. A one-time password will be sent for verification. You can also sign up using Google or Facebook.
+
+---
+Q: How do I reset my password?
+A: On the login page, click Forgot Password and enter your registered email or mobile number. You will receive a reset link via email or an OTP via SMS. VoxCart support will never ask for your password over phone or chat.
+
+---
+Q: Can I place an order without creating an account?
+A: Yes, VoxCart supports guest checkout. You only need to provide your delivery address and contact number. However, creating an account lets you track orders, save addresses, and access order history.
+
+---
+Q: Does VoxCart have a loyalty or rewards programme?
+A: Yes, VoxCart Coins is our loyalty programme. You earn 1 VoxCart Coin for every rupees 100 spent. Coins can be redeemed at checkout — 100 Coins equals rupees 10 off. Coins expire after 12 months of account inactivity.
+
+---
+Q: How do I apply a coupon or promo code?
+A: Enter your coupon code in the Promo Code field at checkout before placing the order. Discounts are applied instantly. Only one coupon can be used per order. Coupons cannot be combined with No-Cost EMI offers unless stated otherwise.
+
+---
+Q: Does VoxCart offer product warranties?
+A: Most Electronics sold on VoxCart come with the manufacturer's standard warranty. The warranty duration is listed on the product page. For warranty claims, contact the manufacturer directly or call VoxCart support at 1800-572-5678 and we will assist you.
+
+---
+Q: How do I contact VoxCart support?
+A: You can reach us at: Phone: 1800-572-5678 (toll-free, Mon–Sat, 9 AM to 9 PM). Email: support@voxcart.in. Live Chat: 24/7 on voxcart.in. You can also ask me directly and I will try to help resolve your query.

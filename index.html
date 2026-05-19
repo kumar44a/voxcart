@@ -478,22 +478,6 @@
       <span>👤</span>
       <input type="text" id="nameInput" placeholder="Your name…" value="Amit" maxlength="40" />
     </div>
-    <div class="name-wrap" style="max-width:160px;">
-      <span>🌐</span>
-      <select id="langSelect" style="background:none;border:none;outline:none;color:var(--txt);font-size:14px;width:100%;cursor:pointer;">
-        <option value="en" selected>English</option>
-        <option value="hi">Hindi</option>
-        <option value="bn">Bengali</option>
-        <option value="ta">Tamil</option>
-        <option value="te">Telugu</option>
-        <option value="kn">Kannada</option>
-        <option value="gu">Gujarati</option>
-        <option value="or">Odia</option>
-        <option value="mr">Marathi</option>
-        <option value="pa">Punjabi</option>
-        <option value="ml">Malayalam</option>
-      </select>
-    </div>
     <button class="btn btn-join"  id="joinBtn">🎙️ &nbsp;Join</button>
     <button class="btn btn-leave" id="leaveBtn" disabled>⏹ &nbsp;Leave</button>
     <div class="mic-chip" id="micChip">🎤 &nbsp;<span id="micText">Mic off</span></div>
@@ -523,7 +507,7 @@
     const joinBtn     = document.getElementById('joinBtn');
     const leaveBtn    = document.getElementById('leaveBtn');
     const nameInput   = document.getElementById('nameInput');
-    const langSelect  = document.getElementById('langSelect');
+
     const audioArea   = document.getElementById('audioArea');
     const avatarWrap  = document.getElementById('avatarWrap');
     const stateIcon   = document.getElementById('stateIcon');
@@ -677,11 +661,10 @@
       setStatus('connecting', 'Connecting…');
 
       const name = nameInput.value.trim() || 'guest';
-      const lang = langSelect.value;
       let token, roomName;
 
       try {
-        const res  = await fetch(`${TOKEN_API_URL}?name=${encodeURIComponent(name)}&language=${encodeURIComponent(lang)}`);
+        const res  = await fetch(`${TOKEN_API_URL}?name=${encodeURIComponent(name)}`);
         const data = await res.json();
         token    = data.token;
         roomName = data.room;
@@ -691,7 +674,7 @@
         return;
       }
 
-      room = new Room();
+      room = new Room({ adaptiveStream: false, stopLocalTrackOnUnpublish: false });
 
       /* Active speakers → avatar state */
       room.on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
@@ -785,7 +768,17 @@
       resetTranscript();
       hideEmpty();
     };
-
+    /* ─── Resume audio when tab becomes visible again ────────────── */
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible') {
+        if (audioCtx && audioCtx.state === 'suspended') {
+          await audioCtx.resume();
+        }
+        if (room) {
+          await room.startAudio().catch(() => {});
+        }
+      }
+    });
     /* ─── Leave ──────────────────────────────────────────────── */
     leaveBtn.onclick = () => {
       if (room) { room.disconnect(); room = null; }

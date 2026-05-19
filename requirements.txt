@@ -3,6 +3,6 @@ flask
 flask-cors
 livekit
 livekit-agents[openai,cartesia,silero,turn-detector]~=1.0
-duckduckgo-search
+livekit-plugins-noise-cancellation
 certifi
 

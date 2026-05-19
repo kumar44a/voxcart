@@ -87,7 +87,7 @@ VoxCart is a **real-time, voice-driven e-commerce support assistant** built on L
 │                               │  │  • lookup_product(query)        │  │  │
 │                               │  │  • get_returns_policy(reason)   │  │  │
 │                               │  │  • get_current_datetime(tz)     │  │  │
-│                               │  │  • web_search(query)            │  │  │
+│                               │  │  • search_faq(query)            │  │
 │                               │  └────────────────────────────────┘  │  │
 │                               └──────────────┬────────────────────────┘  │
 │                                              │                            │
@@ -131,7 +131,6 @@ VoxCart is a **real-time, voice-driven e-commerce support assistant** built on L
 livekit-agents[openai,cartesia,silero,turn-detector]~=1.0
 flask, flask-cors
 python-dotenv
-duckduckgo-search
 certifi
 ```
 
@@ -148,7 +147,7 @@ certifi
 | Returns & refunds | *"I want to return my jacket"* | `get_returns_policy` |
 | General FAQ | *"What's your delivery time?"* | RAG / LLM knowledge |
 | Date / time | *"What day is today?"* | `get_current_datetime` |
-| Web search | *"What's the current price of AirPods?"* | `web_search` |
+| Policy / FAQ | *"Is COD available?"* / *"How long does delivery take?"* | `search_faq` |
 
 ### Mock Data
 
@@ -278,9 +277,9 @@ Aria calls `get_returns_policy("wrong item")` and explains the 30-day return win
 Aria calls `lookup_product("Sony WH-1000XM5")` and describes price, stock status, and key features.
 
 ### Scenario C — Backend-Style Action (Order Tracking)
-> *"Can you check the status of my order ORD-1042?"*
+> *"Can you check the status of my order ORD-1003?"*
 
-Aria calls `get_order_status("ORD-1042")` and reads back the delivery date and current status.
+Aria calls `get_order_status("ORD-1003")` and reads back the delivery date and current status.
 
 ---
 
@@ -321,7 +320,8 @@ voxcart/
 ├── assets/
 │   └── AssistantVoice.gif   # Animated avatar
 └── rag/
-    └── faq.txt              # E-commerce FAQ document for RAG context
+    ├── faq.txt              # 30-entry FAQ for RAG (shipping, payments, policy)
+    └── retriever.py         # Pure-Python TF-IDF retriever — no external deps
 ```
 
 ---

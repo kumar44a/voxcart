@@ -22,6 +22,8 @@ if [ ! -f "$VENV_DIR/bin/activate" ]; then
   source "$VENV_DIR/bin/activate"
   echo "📦 Installing dependencies from requirements.txt..."
   pip install -q -r "$SCRIPT_DIR/requirements.txt"
+  echo "📦 Downloading LiveKit agent model files..."
+  python -m livekit.agents download-files
 else
   source "$VENV_DIR/bin/activate"
 fi
