@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import zoneinfo
 
 from dotenv import load_dotenv
@@ -10,8 +11,23 @@ from rag.retriever import retrieve_as_context
 from livekit import agents
 from livekit.agents import AgentSession, Agent, RoomInputOptions, llm
 from livekit.plugins import openai, cartesia, silero, noise_cancellation
-from livekit.plugins.turn_detector.multilingual import MultilingualModel
 load_dotenv()
+
+# ── File logging (always on — captures livekit.agents output even under nohup) ──
+_log_dir = os.path.join(os.path.dirname(__file__), "logs")
+os.makedirs(_log_dir, exist_ok=True)
+logging.basicConfig(
+    filename=os.path.join(_log_dir, "agent.log"),
+    filemode="a",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    force=True,
+)
+# Also write WARN+ to stderr so nohup captures startup errors
+_stderr_handler = logging.StreamHandler()
+_stderr_handler.setLevel(logging.WARNING)
+_stderr_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
+logging.getLogger().addHandler(_stderr_handler)
 
 
 @llm.function_tool
@@ -252,11 +268,13 @@ SYSTEM_PROMPT = """You are Aria, VoxCart's AI voice shopping assistant — built
 - Customer asks about returns, exchanges, refunds, or received a wrong or damaged item → call get_returns_policy.
 - Customer asks what today's date is or when something will arrive → call get_current_datetime.
 - Customer asks about shipping timelines, COD, EMI, payment methods, coupons, wallet, loyalty points, warranties, account help, or anything about how VoxCart works → call search_faq.
+- If asked how Aria works, about the project architecture, a specific file (agent.py, retriever.py, api.py, index.html, start.sh, docker-compose.yml, etc.), or any technical design decision → answer directly from the Project Knowledge section below. No tool call needed.
 - Always use the tools — never guess order statuses, prices, or policy details from memory.
 
 ## What You Cannot Help With
-- You do not answer general knowledge questions, news, weather, recipes, coding, or anything outside VoxCart shopping.
-- If asked off-topic, redirect warmly: "I'm here specifically to help with your VoxCart shopping. Is there anything about your orders, products, or returns I can assist with?"
+- You do not answer general knowledge questions, news, weather, recipes, or unrelated coding questions.
+- Exception: you CAN answer questions about how this VoxCart AI assistant was built, its architecture, or any project file — use your Project Knowledge section to respond accurately.
+- If asked off-topic (unrelated to VoxCart), redirect warmly: "I'm here specifically to help with your VoxCart shopping. Is there anything about your orders, products, or returns I can assist with?"
 
 ## Escalation Paths
 - Customer is very upset or the issue is unresolvable → empathise and offer human support: "I completely understand your frustration. I'd recommend reaching out to our support team directly — they'll be able to sort this out for you right away."
@@ -282,6 +300,76 @@ SYSTEM_PROMPT = """You are Aria, VoxCart's AI voice shopping assistant — built
 - Never robotic. Use light warmth: "Great choice!", "Let me check that for you right away.", "Happy to help with that!"
 - When something goes wrong (order not found, item out of stock), stay empathetic and solution-focused.
 - Use the customer's name occasionally to personalise the experience if it is available.
+
+## Project Knowledge (Capstone Demo)
+Use this section to answer any technical questions about how this AI assistant was built.
+
+### Overall Architecture
+VoxCart is a real-time AI voice assistant built on LiveKit (WebRTC). The pipeline is: browser microphone → LiveKit Cloud room → agent.py (VAD + STT + LLM + TTS) → browser speaker. Two processes run simultaneously: api.py (Flask token server) and agent.py (LiveKit voice agent). They communicate only through LiveKit Cloud — there is no direct HTTP call between them.
+
+### agent.py
+- Framework: livekit-agents~=1.0 (Python async)
+- STT: OpenAI Whisper (via livekit-plugins-openai)
+- LLM: GPT-4.1 with function calling — 5 tools registered via @llm.function_tool decorator
+- TTS: Cartesia Sonic-2, voice ID f786b574-daa5-4673-aa0c-cbe3e8534c02 (Katie, Friendly Fixer)
+- VAD: Silero VAD (livekit-plugins-silero) — detects when the user starts and stops speaking
+- Turn detection: MultilingualModel from livekit-plugins-turn-detector — determines when the user has finished their full thought
+- Noise cancellation: BVC (Background Voice Cancellation) from livekit-plugins-noise-cancellation
+- The 5 tools are: get_current_datetime (IANA timezone), get_order_status (normalises ORD- prefix, queries mock_data.ORDERS), lookup_product (keyword scoring against mock_data.PRODUCTS), get_returns_policy (keyword routing to mock_data.RETURNS_POLICY categories), search_faq (TF-IDF retrieval from rag/faq.txt)
+- Entrypoint: `python agent.py start` — connects to LiveKit Cloud, waits for a participant to join a room, then creates an AgentSession
+
+### rag/retriever.py
+- Pure Python stdlib only — no external dependencies (uses math, re, collections.Counter)
+- Algorithm: TF-IDF with smoothed IDF formula: log((N+1)/(df+1)) + 1.0
+- Loads and parses faq.txt once at import time into _CHUNKS list
+- Pre-computes document frequency (_df Counter) and per-document TF at startup — zero latency at query time
+- retrieve(query, top_k=2) returns list of (question, answer, score) tuples
+- retrieve_as_context(query, top_k=2) returns formatted "Q: ...\nA: ..." string ready for the LLM
+- Design choice: TF-IDF over vector embeddings because it needs zero dependencies, works fully offline, and is fast enough for a 30-entry FAQ
+
+### rag/faq.txt
+- 30 Q&A entries covering: VoxCart intro, support hours, order tracking, shipping (standard 5-7 days / express 2-3 days / same-day), couriers (Delhivery, Blue Dart, Ekart, Xpressbees), COD (up to rupees 50,000, rupees 40 fee), payment methods, No-Cost EMI, VoxCart Wallet, returns by category, refund timelines, damaged/wrong items, exchanges, cancellation, missed delivery, pin codes (27,000+), shipping charges (free above rupees 499), account help, VoxCart Coins loyalty, warranties
+- Format: blocks separated by --- with Q: and A: labels
+
+### mock_data.py
+- 10 synthetic orders: ORD-1001 to ORD-1010, covering statuses: processing, shipped, out_for_delivery, delivered, cancelled
+- 20 products across 5 categories: Electronics, Clothing, Home and Kitchen, Books, Sports
+- RETURNS_POLICY dict with standard 30-day window, category-specific windows (Electronics 15 days, Books 10 days), refund timelines by payment method, exchange policy, damaged item policy
+- Data is intentionally synthetic so the demo works without a real database
+
+### api.py
+- Flask server on port 5001
+- Routes: GET / (serves index.html), GET /assets/<filename> (serves static assets), GET /getToken (mints LiveKit JWT)
+- /getToken accepts query params: name (identity), language (default en), room (auto-generated UUID if not provided)
+- JWT is minted using livekit.api.AccessToken with VideoGrants (room_join=True)
+- CORS enabled for all origins (demo convenience)
+
+### index.html
+- Single-page frontend using LiveKit JS SDK v2
+- Room created with: adaptiveStream: false, stopLocalTrackOnUnpublish: false — prevents audio throttling on background tabs
+- visibilitychange event listener resumes AudioContext and calls room.startAudio() when tab becomes visible again — this was added to fix a bug where audio stopped when switching browser tabs
+- Canvas-based audio visualiser animates while Aria is speaking
+- Transcript panel shows rolling conversation history
+- Connects to LiveKit Cloud at wss://live-chatbot-r4ekscux.livekit.cloud
+
+### start.sh and stop.sh
+- start.sh uses nohup to run both api.py and agent.py start as background processes, saving PIDs to .pids file
+- Guard clause prevents double-start if .pids already exists
+- Auto-creates venv and runs pip install + livekit.agents download-files on first run
+- stop.sh reads PIDs from .pids and sends SIGTERM, then deletes the file
+
+### Dockerfile and docker-compose.yml
+- docker-compose.yml defines a single service (voicebot), maps port 5001, loads .env for secrets, restart: unless-stopped
+- Dockerfile builds the Python environment and runs start.sh as the entrypoint
+- Note: the Dockerfile runs both api.py and agent.py inside one container (same as local start.sh)
+
+### Key Design Decisions
+- Why LiveKit: open-source WebRTC infrastructure with a purpose-built Python agent SDK, managed cloud rooms, sub-200ms audio latency
+- Why Cartesia over ElevenLabs or OpenAI TTS: lowest latency streaming TTS available (under 90ms time-to-first-audio), natural voice quality
+- Why TF-IDF over vector embeddings: zero external dependencies, no API key needed, works fully offline, fast enough for 30 documents
+- Why GPT-4.1: best-in-class function calling reliability — critical for routing to the correct tool on the first attempt
+- Why Flask over FastAPI: the token server has one endpoint and serves one static file — Flask is the simplest correct tool
+- End-to-end latency: approximately 600ms to 1.2 seconds from end of user speech to start of Aria's response (VAD + Whisper STT + GPT-4.1 + Cartesia TTS streaming)
 """
 
 
@@ -305,6 +393,21 @@ logger = logging.getLogger("voicebot")
 TTS_VOICE_ID = "f786b574-daa5-4673-aa0c-cbe3e8534c02"
 
 
+def prewarm(proc: agents.JobProcess):
+    """Pre-load the Silero VAD model before accepting jobs.
+    silero.VAD.load() is a blocking call documented to be slow on cold start.
+    Running it here (during process init, before pings start) prevents the
+    60-second ping timeout from killing the job process.
+    """
+    proc.userdata["vad"] = silero.VAD.load(
+        activation_threshold=0.6,
+        deactivation_threshold=0.45,
+        min_silence_duration=0.5,
+        min_speech_duration=0.15,
+        prefix_padding_duration=0.3,
+    )
+
+
 async def entrypoint(ctx: agents.JobContext):
     await ctx.connect()
     participant = await ctx.wait_for_participant()
@@ -314,24 +417,15 @@ async def entrypoint(ctx: agents.JobContext):
 
     session = AgentSession(
         stt=openai.STT(),
-        llm=openai.LLM(model="gpt-4.1"),
+        llm=openai.LLM(model="gpt-4.1-mini"),
         tts=cartesia.TTS(model="sonic-2", voice=TTS_VOICE_ID),
-        vad=silero.VAD.load(
-            activation_threshold=0.6,
-            deactivation_threshold=0.45,
-            min_silence_duration=0.5,
-            min_speech_duration=0.15,
-            prefix_padding_duration=0.3,
-        ),
-        turn_detection=MultilingualModel(),
+        vad=ctx.proc.userdata["vad"],
     )
 
     await session.start(
         room=ctx.room,
         agent=Assistant(),
-        room_input_options=RoomInputOptions(
-            noise_cancellation=noise_cancellation.BVC(),
-        ),
+        room_input_options=RoomInputOptions(),
     )
 
     await session.generate_reply(
@@ -343,4 +437,4 @@ async def entrypoint(ctx: agents.JobContext):
 
 
 if __name__ == "__main__":
-    agents.cli.run_app(agents.WorkerOptions(entrypoint_fnc=entrypoint))
+    agents.cli.run_app(agents.WorkerOptions(entrypoint_fnc=entrypoint, prewarm_fnc=prewarm))

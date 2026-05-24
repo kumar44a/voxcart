@@ -25,13 +25,21 @@ Key data structures to audit/modify (all in `agent.py`):
 
 ## Language Analysis Workflow
 
-When asked to analyze or add a language (e.g. French, Spanish, Czech):
+**Quick checklist** (follow in order; stop early if a gate fails):
+1. Read `agent.py` data structures
+2. Check if ISO code already exists → if yes in all 3 structures, stop (fully supported)
+3. Verify Cartesia `sonic-2` support using the static list in step 3 below → if not listed, skip step 4
+4. Look up Cartesia voice IDs for male and female
+5. Confirm OpenAI STT ISO code
+6. Show summary table → confirm with user → apply changes
+
+**Detailed steps** — when asked to analyze or add a language (e.g. French, Spanish, Czech):
 
 1. **Read the current state**: Read `agent.py` and locate `CARTESIA_LANGUAGES`, `CARTESIA_VOICES`, and `LANGUAGE_NAMES`.
 
 2. **Check if already supported**: Use `grep_search` for the ISO code (e.g. `"cs"`, `"fr"`). If it exists in all three structures, report "fully supported" and stop.
 
-3. **Determine Cartesia support**: Fetch https://docs.cartesia.ai/api-reference/tts/bytes to check if Cartesia `sonic-2` supports the language. Cartesia currently supports: `en, es, fr, de, pt, zh, ja, hi, it, ko, nl, pl, ru, sv, tr`. If the language is listed, it belongs in `CARTESIA_LANGUAGES`.
+3. **Determine Cartesia support**: Use only the following static list — do not fetch any external URL for this check. Cartesia `sonic-2` supports: `en, es, fr, de, pt, zh, ja, hi, it, ko, nl, pl, ru, sv, tr`. If the language is in this list, it belongs in `CARTESIA_LANGUAGES`. If not, skip step 4 and omit `CARTESIA_LANGUAGES` / `CARTESIA_VOICES` updates.
 
 4. **Find voice IDs**: If Cartesia supports the language, search https://play.cartesia.ai/voices for available voices in that language. Look for male and female options. If no gender-specific voice is available, use `None` with a comment.
 
@@ -56,11 +64,11 @@ When asked to analyze or add a language (e.g. French, Spanish, Czech):
 
 ## Constraints
 
-- DO NOT modify anything outside `CARTESIA_LANGUAGES`, `CARTESIA_VOICES`, `LANGUAGE_NAMES`, and `OPENAI_VOICES`.
-- DO NOT fabricate Cartesia voice UUIDs. Use `None` + a `# TODO: find voice ID` comment if a real ID is unavailable.
-- DO NOT add a language to `CARTESIA_LANGUAGES` unless Cartesia `sonic-2` actually supports it — OpenAI TTS fallback handles all other languages automatically.
+- DO NOT modify anything outside `CARTESIA_LANGUAGES`, `CARTESIA_VOICES`, and `LANGUAGE_NAMES` unless the user explicitly asks to change fallback voices.
+- DO NOT fabricate Cartesia voice UUIDs. If no real voice ID is available, set the entry in `CARTESIA_VOICES` to `None` with a `# TODO: find voice ID` comment. A `None` entry means the runtime will fall back to OpenAI TTS automatically — no changes to `OPENAI_VOICES` are required or implied.
+- DO NOT add a language to `CARTESIA_LANGUAGES` unless it appears in the static support list in step 3 — OpenAI TTS fallback handles all other languages automatically.
 - DO NOT touch `SYSTEM_PROMPT`, `Assistant`, `build_tts`, `build_stt`, or any other function.
-- ONLY suggest changing `OPENAI_VOICES` if the user explicitly wants different fallback voices.
+- Only edit `OPENAI_VOICES` when the user explicitly asks for different fallback voices; this is independent of Cartesia voice ID availability.
 
 ## Output Format
 
