@@ -32,7 +32,7 @@ VoxCart is a **real-time, voice-driven e-commerce support assistant** built on L
 |-----------|----------------|
 | Real-time voice interaction | LiveKit WebRTC room — bidirectional audio in < 1 second |
 | STT + TTS in a live loop | OpenAI Whisper (STT) + Cartesia Sonic-2 (TTS) |
-| LLM-driven conversational engine | GPT-4.1 with e-commerce system prompt |
+| LLM-driven conversational engine | GPT-4.1-mini with e-commerce system prompt |
 | Decision routing to backend actions | Function-calling tools for orders, products, returns |
 | End-to-end e-commerce demo | Three required demo scenarios fully functional |
 
@@ -41,7 +41,7 @@ VoxCart is a **real-time, voice-driven e-commerce support assistant** built on L
 - **No page refresh, no typing** — pure voice from start to finish
 - **Stateful conversation** — Aria (the assistant) remembers context within a session
 - **Graceful uncertainty handling** — explicit fallbacks for unclear speech and out-of-scope requests
-- **Multilingual** — handles English + multiple Indian languages via language selector
+- **English-first** — optimised for English; language selector retained in frontend for future extension
 - **Optional RAG** — product FAQ and policy documents injected into LLM context for factual answers
 
 ---
@@ -119,16 +119,16 @@ VoxCart is a **real-time, voice-driven e-commerce support assistant** built on L
 
 | Layer | Provider | Model | Role |
 |-------|----------|-------|------|
-| Voice Activity Detection | Silero | VAD | Detect when user starts/stops speaking |
+| Voice Activity Detection | Silero | VAD | Detect when user starts/stops speaking + turn end detection |
 | Speech-to-Text | OpenAI | Whisper | Transcribe user speech to text |
-| Language Model | OpenAI | **GPT-4.1** | Conversational reasoning + tool calls |
+| Language Model | OpenAI | **GPT-4.1-mini** | Conversational reasoning + tool calls |
 | Text-to-Speech | Cartesia | **Sonic-2** | Synthesise natural e-commerce assistant voice |
-| Turn Detection | LiveKit | Multilingual | Know when the user has finished their turn |
 
 ### Python Dependencies
 
 ```
 livekit-agents[openai,cartesia,silero,turn-detector]~=1.0
+livekit-plugins-noise-cancellation
 flask, flask-cors
 python-dotenv
 certifi
@@ -313,7 +313,8 @@ voxcart/
 ├── Dockerfile          # Container image definition
 ├── docker-compose.yml  # One-command startup
 ├── start.sh            # Local startup script (auto-creates venv)
-├── stop.sh             # Graceful shutdown script
+├── stop.sh             # Graceful shutdown script (kills full process tree, waits for port 8081)
+├── healthcheck.sh      # 13-point pre-demo health checker
 ├── get_voices.py       # Utility — list available Cartesia voices
 ├── .env_example        # Environment variable template
 ├── .gitignore
@@ -346,6 +347,18 @@ export SSL_CERT_FILE=$(python3 -c "import certifi; print(certifi.where())")
 ### No audio from bot
 - Confirm `OPENAI_API_KEY` and `CARTESIA_API_KEY` are valid and have credits
 - Check `logs/agent.log` for stack traces
+
+### Pre-demo health check
+Run `./healthcheck.sh` before any demo. It performs 13 checks: `.env` keys, venv, process status, port availability, log errors, and LiveKit connectivity.
+
+### Agent times out after 60 seconds on first start
+This is a cold-start issue. The Silero VAD model (`silero.VAD.load()`) is pre-loaded in the `prewarm` function before the job process accepts connections — if you see a 60s timeout, ensure you are not calling `silero.VAD.load()` inside `entrypoint()`. **Do not add back** `MultilingualModel()` (transformer cold-start timeout) or `noise_cancellation.BVC()` (dylib cold-start block) — both will cause the agent to hang on first start after a Mac restart.
+
+### Port 8081 still in use after stop.sh
+The updated `stop.sh` kills the entire process tree and waits for port 8081 to be released. If the port is still held:
+```bash
+lsof -ti:8081 | xargs kill -9
+```
 
 ---
 

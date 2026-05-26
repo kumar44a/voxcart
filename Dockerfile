@@ -20,8 +20,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
-COPY agent.py api.py index.html get_voices.py ./
+COPY agent.py api.py index.html get_voices.py mock_data.py ./
 COPY assets/ ./assets/
+COPY rag/ ./rag/
 
 # Make startup script executable
 COPY start.sh /start.sh

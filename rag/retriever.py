@@ -22,7 +22,7 @@ def _parse_faq(path: str) -> List[dict]:
         raw = f.read()
 
     chunks = []
-    for block in raw.split("---"):
+    for block in raw.split("---")[1:]:  # [1:] skips the file header block
         block = block.strip()
         if not block:
             continue

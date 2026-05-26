@@ -24,10 +24,16 @@ done < "$PID_FILE"
 
 # Kill any remaining voxcart venv Python processes (job pool workers)
 pkill -9 -f 'voxcart/venv.*python' 2>/dev/null || true
+pkill -9 -f 'voxcart/.*api.py' 2>/dev/null || true
+pkill -9 -f 'voxcart/.*agent.py start' 2>/dev/null || true
 
-# Wait for port 8081 to be released before returning
+# Force-kill any process still holding port 5001 or 8081 regardless of how it was launched
+lsof -ti:5001 2>/dev/null | xargs kill -9 2>/dev/null || true
+lsof -ti:8081 2>/dev/null | xargs kill -9 2>/dev/null || true
+
+# Wait for ports to be released before returning
 for i in $(seq 1 10); do
-  if ! lsof -ti:8081 &>/dev/null; then
+  if ! lsof -ti:5001 &>/dev/null && ! lsof -ti:8081 &>/dev/null; then
     break
   fi
   sleep 0.5

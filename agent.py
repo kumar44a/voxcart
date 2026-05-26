@@ -310,11 +310,11 @@ VoxCart is a real-time AI voice assistant built on LiveKit (WebRTC). The pipelin
 ### agent.py
 - Framework: livekit-agents~=1.0 (Python async)
 - STT: OpenAI Whisper (via livekit-plugins-openai)
-- LLM: GPT-4.1 with function calling — 5 tools registered via @llm.function_tool decorator
+- LLM: GPT-4.1-mini with function calling — 5 tools registered via @llm.function_tool decorator
 - TTS: Cartesia Sonic-2, voice ID f786b574-daa5-4673-aa0c-cbe3e8534c02 (Katie, Friendly Fixer)
-- VAD: Silero VAD (livekit-plugins-silero) — detects when the user starts and stops speaking
-- Turn detection: MultilingualModel from livekit-plugins-turn-detector — determines when the user has finished their full thought
-- Noise cancellation: BVC (Background Voice Cancellation) from livekit-plugins-noise-cancellation
+- VAD: Silero VAD (livekit-plugins-silero) — detects when the user starts and stops speaking; also handles turn-end detection
+- Turn detection: handled by Silero VAD (MultilingualModel was removed — it imports Transformers which caused a >60s cold-start hang)
+- Noise cancellation: not active (BVC was removed — loading the native dylib blocked the job process event loop on cold start)
 - The 5 tools are: get_current_datetime (IANA timezone), get_order_status (normalises ORD- prefix, queries mock_data.ORDERS), lookup_product (keyword scoring against mock_data.PRODUCTS), get_returns_policy (keyword routing to mock_data.RETURNS_POLICY categories), search_faq (TF-IDF retrieval from rag/faq.txt)
 - Entrypoint: `python agent.py start` — connects to LiveKit Cloud, waits for a participant to join a room, then creates an AgentSession
 
@@ -356,7 +356,7 @@ VoxCart is a real-time AI voice assistant built on LiveKit (WebRTC). The pipelin
 - start.sh uses nohup to run both api.py and agent.py start as background processes, saving PIDs to .pids file
 - Guard clause prevents double-start if .pids already exists
 - Auto-creates venv and runs pip install + livekit.agents download-files on first run
-- stop.sh reads PIDs from .pids and sends SIGTERM, then deletes the file
+- stop.sh kills the full process tree (kill -9 + pkill -P) for each PID, kills any remaining voxcart venv Python processes, waits for port 8081 to be released, then deletes .pids
 
 ### Dockerfile and docker-compose.yml
 - docker-compose.yml defines a single service (voicebot), maps port 5001, loads .env for secrets, restart: unless-stopped
@@ -367,9 +367,9 @@ VoxCart is a real-time AI voice assistant built on LiveKit (WebRTC). The pipelin
 - Why LiveKit: open-source WebRTC infrastructure with a purpose-built Python agent SDK, managed cloud rooms, sub-200ms audio latency
 - Why Cartesia over ElevenLabs or OpenAI TTS: lowest latency streaming TTS available (under 90ms time-to-first-audio), natural voice quality
 - Why TF-IDF over vector embeddings: zero external dependencies, no API key needed, works fully offline, fast enough for 30 documents
-- Why GPT-4.1: best-in-class function calling reliability — critical for routing to the correct tool on the first attempt
+- Why GPT-4.1-mini: strong function calling reliability at lower cost and latency — critical for routing to the correct tool on the first attempt
 - Why Flask over FastAPI: the token server has one endpoint and serves one static file — Flask is the simplest correct tool
-- End-to-end latency: approximately 600ms to 1.2 seconds from end of user speech to start of Aria's response (VAD + Whisper STT + GPT-4.1 + Cartesia TTS streaming)
+- End-to-end latency: approximately 600ms to 1.2 seconds from end of user speech to start of Aria's response (VAD + Whisper STT + GPT-4.1-mini + Cartesia TTS streaming)
 """
 
 
